@@ -31,7 +31,7 @@ ${rules}
 PR Changes:
 ${formattedFiles}
 
-Return in json format:
+give me descriptive answer for:
 Issues Found
 - [File: name]
   - Issue:
@@ -42,7 +42,10 @@ Summary
 - Critical Issues:
 `;
 
-    return await promptGemini(prompt);
+console.log(prompt)
+
+    const response =  await promptGemini(prompt);
+    return response;
   }
 }
 
