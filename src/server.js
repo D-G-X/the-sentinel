@@ -15,7 +15,7 @@ app.use("/analyze", analyzeRoute);
 
 // Health check
 app.get("/", (req, res) => {
-  res.send("🚀 ADA Security Engine Running");
+  res.send("welcome to sentinel");
 });
 
 // Start server
