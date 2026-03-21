@@ -1,4 +1,4 @@
-import promptGemini from '../gemini/gemini_2.5_API.js';
+import promptGemini from "../gemini/gemini_2.5_API.js";
 
 // Service for analyzing architecture
 class ArchitectService {
@@ -8,11 +8,15 @@ class ArchitectService {
       return "No files to analyze";
     }
 
-    const formattedFiles = files.map(f => `
+    const formattedFiles = files
+      .map(
+        (f) => `
 File: ${f.filename}
 Changes:
 ${f.patch || "No changes"}
-`).join("\n");
+`,
+      )
+      .join("\n");
 
     const rules = JSON.stringify(architectRules, null, 2);
 
@@ -42,9 +46,7 @@ Summary
 - Critical Issues:
 `;
 
-console.log(prompt)
-
-    const response =  await promptGemini(prompt);
+    const response = await promptGemini(prompt);
     return response;
   }
 }
