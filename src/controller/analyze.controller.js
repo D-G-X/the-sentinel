@@ -1,24 +1,30 @@
-import { scanSecurity } from "../tasks/security/scanner.js";
+import architectService from "../services/architectService.js";
 
-export function analyzeCode(req, res) {
+export async function analyzeCode(req, res) {
   try {
-    const { files } = req.body;
+    const { prFiles, architectRules } = req.body;
 
-    if (!files || !Array.isArray(files)) {
+    if (!prFiles || !Array.isArray(prFiles)) {
       return res.status(400).json({
-        error: "Invalid input: files array required"
+        error: "Invalid input: prFiles array required"
       });
     }
 
-    const issues = scanSecurity(files);
+    if (!architectRules) {
+      return res.status(400).json({
+        error: "Invalid input: architectRules required"
+      });
+    }
+
+    const result = await architectService.analyzeArchitecture(prFiles, architectRules);
 
     res.json({
       success: true,
-      issues
+      analysis: result
     });
 
   } catch (error) {
-    console.error("❌ Analysis Error:", error);
+    console.error("Analysis Error:", error);
 
     res.status(500).json({
       error: "Internal Server Error"
