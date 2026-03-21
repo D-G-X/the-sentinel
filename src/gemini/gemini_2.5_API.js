@@ -20,7 +20,7 @@ async function promptGemini(prompt) {
     );
 
     const apiPromise = model.generateContent(prompt);
-    const result = await Promise.race([apiPromise, timeoutPromise]);
+    const result = await Promise.race([apiPromise]);
 
     const text = result.response.text();
 
