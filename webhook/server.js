@@ -4,7 +4,7 @@ import axios from "axios";
 const app = express();
 app.use(express.json());
 
-app.post("/webhook", async (req, res) => {
+app.post("/", async (req, res) => {
     console.log("📩 Webhook received!");
 
     const event = req.headers["x-github-event"];
@@ -23,7 +23,7 @@ app.post("/webhook", async (req, res) => {
             try {
                 const response = await axios.get(filesUrl, {
                     headers: {
-                        Authorization: `Bearer YOUR_GITHUB_TOKEN`
+                        Authorization:                  `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`
                     }
                 });
 

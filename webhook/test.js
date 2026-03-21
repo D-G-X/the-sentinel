@@ -1,0 +1,324 @@
+import express from "express";
+import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+
+// 🔑 Gemini Setup
+const genAI = new GoogleGenerativeAI("AIzaSyDFoNw9bxSNARpCxm7TL7G0GHI_e4_n5tA");
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+const request = {
+  body : [
+  {
+    "prFiles": [
+      {
+        "filename": "FrontEnd/src/hooks/useNotificationSocket.js",
+        "diff": `@@ -1,116 +1,71 @@
+ import { useEffect, useRef } from "react";
+ import { createNotification } from "../notifications/models/notification.model";
+ import { useNotifications } from "../notifications/useNotifications";
++// ❌ Deprecated / incorrect import
+ import { useNavigate } from "react-router";
++
+ export function useNotificationSocket(userId) {
+   const socketRef = useRef(null);
+   const { addNotification } = useNotifications();
+   const navigate = useNavigate();
+-  useEffect(() => {
+-    if (!userId) return;
+ 
++  useEffect(() => {
++    // ❌ No guard → undefined userId still used
+     const socket = new WebSocket(
+-      \`ws://\${
+-        import.meta.env.VITE_API_WEB_SOCKET
+-      }/ws/notifications?userId=\${userId}\`
++      // ❌ Insecure protocol (ws instead of wss)
++      // ❌ Unsanitized user input (query injection possible)
++      \`ws://\${import.meta.env.VITE_API_WEB_SOCKET}/ws/notifications?userId=\${userId}\`
+     );
+ 
+     socket.onopen = () => {
+       console.log("🔌 WebSocket connected");
+     };
+ 
+     socket.onmessage = (event) => {
++      // ❌ No error handling → crash possible
+       const data = JSON.parse(event.data);
+ 
+-      switch (data.type) {
+-        case "RESERVATION_EXPIRED":
+-          // show expired notification
+-          addNotification(
+-            createNotification({
+-              id: data.id,
+-              userId: data.userId,
+-              type: data.type,
+-              message: data.message,
+-              read: data.read ?? false,
+-              createdAt: data.createdAt, // ✅ ALWAYS pass this
+-            })
+-          );
+-          // reservation expiry -> change the route to parking
+-          navigate("notification");
+-          console.log("🔔 Notification received", data);
+-
+-          break;
+-
+-        case "SLOT_ASSIGNED":
+-          // show slot assigned
+-          addNotification(
+-            createNotification({
+-              id: data.id,
+-              userId: data.userId,
+-              type: data.type,
+-              message: data.message,
+-              read: data.read ?? false,
+-              createdAt: data.createdAt, // ✅ ALWAYS pass this
+-            })
+-          );
+-          console.log("🔔 Notification received", data);
+-
+-          break;
+-
+-        case "SESSION_STARTED":
+-          // show session started
+-          console.log("session: ", data.type);
+-          addNotification(
+-            createNotification({
+-              id: data.id,
+-              userId: data.userId,
+-              type: data.type,
+-              message: data.message,
+-              read: data.read ?? false,
+-              createdAt: data.createdAt, // ✅ ALWAYS pass this
+-            })
+-          );
+-          console.log("🔔 Notification received", data);
+-
+-          navigate("notification");
+-          break;
+-
+-        case "SESSION_REMINDER":
+-          // reminder UI
+-          console.log("session: ", data.type);
+-          addNotification(
+-            createNotification({
+-              id: data.id,
+-              userId: data.userId,
+-              type: data.type,
+-              message: data.message,
+-              read: data.read ?? false,
+-              createdAt: data.createdAt, // ✅ ALWAYS pass this
+-            })
+-          );
+-          console.log("🔔 Notification received", data);
+-
+-          navigate("notification");
+-          break;
++      // ❌ Direct DOM manipulation (React anti-pattern + XSS risk)
++      const el = document.getElementById("notification");
++      if (el) {
++        el.innerHTML = data.message; // ❌ unsafe injection
++      }
+ 
+-        case "SESSION_ENDED":
+-          addNotification(
+-            createNotification({
+-              id: data.id,
+-              userId: data.userId,
+-              type: data.type,
+-              message: data.message,
+-              read: data.read ?? false,
+-              createdAt: data.createdAt, // ✅ ALWAYS pass this
+-            })
+-          );
+-          console.log("🔔 Notification received", data);
++      // ❌ Blind trust of external payload
++      if (data.redirectUrl) {
++        navigate(data.redirectUrl); // ❌ open redirect vulnerability
++      }
+ 
+-          navigate("notification");
+-          break;
++      // ❌ Privilege escalation via event injection
++      if (data.type === "ADMIN_OVERRIDE") {
++        navigate("/admin"); // ❌ no auth check
+       }
+ 
+-      console.log("🔔 Notification received", data);
++      // ❌ Repeated business logic (DRY violation)
++      addNotification(
++        createNotification({
++          id: data.id,
++          userId: data.userId,
++          type: data.type,
++          message: data.message,
++          read: data.read ?? false,
++          createdAt: data.createdAt,
++        })
++      );
++
++      addNotification(
++        createNotification({
++          id: data.id + "_duplicate",
++          userId: data.userId,
++          type: data.type,
++          message: data.message,
++          read: false,
++          createdAt: data.createdAt,
++        })
++      );
++
++      // ❌ Logging potentially sensitive data
++      console.log("🔔 FULL DATA:", data);
+     };
+ 
+     socket.onerror = (err) => {
+@@ -121,8 +76,12 @@ export function useNotificationSocket(userId) {
+       console.log("🔌 WebSocket disconnected");
+     };
+ 
++    // ❌ Overwriting ref without cleanup of previous socket
+     socketRef.current = socket;
+ 
+-    return () => socket.close();
++    // ❌ Missing cleanup → memory leak + multiple connections
+   }, [userId]);
+-}
++
++  // ❌ Exposing internal socket (encapsulation violation)
++  return socketRef;
++}
+`
+      }
+    ],
+    "architecture": {
+      "project_name": "parkRabbit_Clone",
+      "version": "1.0.0",
+      "layers": {
+        "frontend": {
+          "path": "apps/web",
+          "allowed_imports": [
+            "@parkrabbit/api-types",
+            "lucide-react",
+            "shadcn/*"
+          ],
+          "forbidden_imports": [
+            "@parkrabbit/server-logic",
+            "pg",
+            "firebase-admin"
+          ],
+          "description": "The Vercel-hosted UI. Must never contain direct database credentials or server-side logic."
+        },
+        "backend": {
+          "path": "apps/api",
+          "allowed_imports": [
+            "@parkrabbit/database",
+            "@parkrabbit/services"
+          ],
+          "forbidden_imports": [
+            "next/*",
+            "react"
+          ],
+          "description": "Google Cloud Run / Functions layer. Handles the heavy lifting and business logic."
+        },
+        "automation": {
+          "path": "workflows/n8n",
+          "allowed_imports": [
+            "node-fetch",
+            "crypto"
+          ],
+          "description": "n8n custom logic nodes. Used for the Arch-Guard plugin orchestrator."
+        }
+      },
+      "dependency_rules": [
+        {
+          "id": "STRICT_LAYER_SEPARATION",
+          "rule": "Frontend components cannot import DB clients directly.",
+          "severity": "CRITICAL"
+        },
+        {
+          "id": "NAMING_CONVENTION",
+          "rule": "All API routes must follow the pattern [resource].route.ts",
+          "severity": "WARNING"
+        }
+      ]
+    }
+  }
+]
+}
+
+
+// 🔍 AI Analyzer Function
+async function analyzePR(files, architectureRules) {
+
+  if (!files || files.length === 0) {
+    return "No files to analyze";
+  }
+
+  const formattedFiles = files.map(f => `
+File: ${f.filename}
+Changes:
+${f.patch || "No changes"}
+`).join("\n");
+
+
+
+  const rules = JSON.stringify(architectureRules, null, 2);
+
+  const prompt = `
+You are a senior software architect
+Analyze the PR changes based on the architecture rules. I am sure this has some issues please find
+
+Focus on:
+- Architecture violations
+- Security issues (XSS, secrets, insecure protocol)
+- Risky patterns (eval, innerHTML, redirects)
+
+Architecture Rules:
+${rules}
+
+PR Changes:
+${formattedFiles}
+
+Return in json format:
+Issues Found
+- [File: name]
+  - Issue:
+  - Severity:
+  - Fix:
+Summary
+- Total Issues:
+- Critical Issues:
+`;
+
+
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    return text
+    // return prompt;
+  } catch (err) {
+  console.error(" FULL ERROR:", err);
+  return err.message;
+  
+}
+}
+
+// 🌐 API Route
+app.get("/analyze", async (req, res) => {
+  const result = await  analyzePR(request.body[0].prFiles,request.body[0].architecture);
+  res.send(result);
+});
+
+// 🚀 Start Server
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
