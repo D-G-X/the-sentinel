@@ -1,28 +1,66 @@
-import { scanSecurity } from "../tasks/security/scanner.js";
+import architectService from "../services/architectService.js";
+import securityService from "../services/securityService.js";
 
 export async function analyzeCode(req, res) {
   try {
-    const { files } = req.body;
+    console.log("📡 Received /analyze request");
 
-    if (!files || !Array.isArray(files)) {
+    // Get data from request body
+    const { prFiles, architectRules } = req.body;
+
+    // Validate inputs
+    if (!prFiles || !Array.isArray(prFiles)) {
       return res.status(400).json({
-        error: "Invalid input: files array required"
+        success: false,
+        error: "Missing or invalid prFiles",
+        message:
+          "prFiles must be an array of file objects with filename and patch/diff properties",
       });
     }
 
-    // 🔐 Step 1: deterministic security scan
-    const issues = await scanSecurity(files);
-    res.json({
-      success:true,
-      issues: issues
-    })
-  //  Only after getting the issues call the gemini api to send the prompt with the issues
+    if (!architectRules) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing architectRules",
+        message: "architectRules object is required",
+      });
+    }
 
+    const result_arc = await architectService.analyzeArchitecture(
+      prFiles,
+      architectRules,
+    );
+
+    const result_sec = await securityService.analyzeSecurity(prFiles);
+
+    // Parse result if it's a JSON string, otherwise treat as plain text
+    let parsedResult_arc = result_arc;
+    let parsedResult_sec = result_sec;
+    try {
+      if (typeof result === "string" && result.trim().startsWith("{")) {
+        parsedResult_arc = JSON.parse(result);
+        parsedResult_sec = JSON.parse(result);
+      }
+    } catch (parseError) {
+      // If parsing fails, keep as string
+      console.log("Could not parse result as JSON, returning as text");
+      parsedResult_arc = result_arc;
+      parsedResult_sec = result_sec;
+
+      parsedResult = parsedResult_arc + "\n" + parsedResult_sec;
+    }
+
+    return res.status(200).json({
+      success: true,
+      analysis: parsedResult,
+    });
   } catch (error) {
-    console.error("❌ Analysis Error:", error);
+    console.error("❌ Analysis Error:", error.message);
 
-    res.status(500).json({
-      error: error.message || "Internal Server Error"
+    return res.status(500).json({
+      success: false,
+      error: "Analysis failed",
+      message: error.message,
     });
   }
 }
