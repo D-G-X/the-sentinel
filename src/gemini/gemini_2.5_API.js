@@ -11,13 +11,18 @@ const model = genAI.getGenerativeModel({
 
 async function promptGemini(prompt) {
   try {
-    // Create a promise with timeout
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("API call timeout after 15 seconds")),
-        15000,
-      ),
-    );
+    const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS || 30000);
+    let timeoutId;
+
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(
+        () =>
+          reject(
+            new Error(`API call timeout after ${timeoutMs / 1000} seconds`),
+          ),
+        timeoutMs,
+      );
+    });
 
     const apiPromise = model.generateContent(prompt);
     const result = await Promise.race([apiPromise]);

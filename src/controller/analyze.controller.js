@@ -1,9 +1,10 @@
 import architectService from "../services/architectService.js";
+import securityService from "../services/securityService.js";
 
 export async function analyzeCode(req, res) {
   try {
     console.log("📡 Received /analyze request");
-    
+
     // Get data from request body
     const { prFiles, architectRules } = req.body;
 
@@ -12,7 +13,8 @@ export async function analyzeCode(req, res) {
       return res.status(400).json({
         success: false,
         error: "Missing or invalid prFiles",
-        message: "prFiles must be an array of file objects with filename and patch/diff properties"
+        message:
+          "prFiles must be an array of file objects with filename and patch/diff properties",
       });
     }
 
@@ -20,18 +22,22 @@ export async function analyzeCode(req, res) {
       return res.status(400).json({
         success: false,
         error: "Missing architectRules",
-        message: "architectRules object is required"
+        message: "architectRules object is required",
       });
     }
 
-    console.log(`✅ Analyzing ${prFiles.length} file(s)...`);
-    
-    const result = await architectService.analyzeArchitecture(prFiles, architectRules);
+    const result_arc = await architectService.analyzeArchitecture(
+      prFiles,
+      architectRules,
+    );
+
+    const result_sec = await securityService.analyzeSecurity(prFiles);
 
     // Parse result if it's a JSON string, otherwise treat as plain text
+    const result = result_arc + "\n" + result_sec;
     let parsedResult = result;
     try {
-      if (typeof result === 'string' && result.trim().startsWith('{')) {
+      if (typeof result === "string" && result.trim().startsWith("{")) {
         parsedResult = JSON.parse(result);
       }
     } catch (parseError) {
@@ -40,20 +46,17 @@ export async function analyzeCode(req, res) {
       parsedResult = result;
     }
 
-    console.log("✅ Analysis complete");
-
     return res.status(200).json({
       success: true,
-      analysis: parsedResult
+      analysis: parsedResult,
     });
-
   } catch (error) {
     console.error("❌ Analysis Error:", error.message);
 
     return res.status(500).json({
       success: false,
       error: "Analysis failed",
-      message: error.message
+      message: error.message,
     });
   }
 }

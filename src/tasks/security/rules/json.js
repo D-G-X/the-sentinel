@@ -1,4 +1,4 @@
-import { getLineNumber } from "../utilities/helpers.js";
+import { getLineNumber } from "../utils/helpers.js";
 
 export function detectUnsafeJSONParse(code, file) {
   const issues = [];
