@@ -9,6 +9,10 @@ class SecurityService {
 
     const issues = await scanSecurity(files);
 
+    if (issues.length == 0) {
+      return "";
+    }
+
     const prompt = `
         You are a senior security engineer reviewing a pull request.
 

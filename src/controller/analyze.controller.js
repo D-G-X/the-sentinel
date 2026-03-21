@@ -34,20 +34,16 @@ export async function analyzeCode(req, res) {
     const result_sec = await securityService.analyzeSecurity(prFiles);
 
     // Parse result if it's a JSON string, otherwise treat as plain text
-    let parsedResult_arc = result_arc;
-    let parsedResult_sec = result_sec;
+    const result = result_arc + "\n" + result_sec;
+    let parsedResult = result;
     try {
       if (typeof result === "string" && result.trim().startsWith("{")) {
-        parsedResult_arc = JSON.parse(result);
-        parsedResult_sec = JSON.parse(result);
+        parsedResult = JSON.parse(result);
       }
     } catch (parseError) {
       // If parsing fails, keep as string
       console.log("Could not parse result as JSON, returning as text");
-      parsedResult_arc = result_arc;
-      parsedResult_sec = result_sec;
-
-      parsedResult = parsedResult_arc + "\n" + parsedResult_sec;
+      parsedResult = result;
     }
 
     return res.status(200).json({
