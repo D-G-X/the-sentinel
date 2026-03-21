@@ -1,5 +1,4 @@
 import { scanSecurity } from "../tasks/security/scanner.js";
-import { enhanceIssue } from  '../tasks/gemini.service.js';
 
 export async function analyzeCode(req, res) {
   try {
@@ -17,22 +16,7 @@ export async function analyzeCode(req, res) {
       success:true,
       issues: issues
     })
-    // // 🧠 Step 2: AI enhancement
-    // const enhanced = await Promise.all(
-    //   issues.map(async (issue) => {
-    //     const explanation = await enhanceIssue(issue);
-    //     return {
-    //       ...issue,
-    //       explanation
-    //     };
-    //   })
-    // );
-
-    // // 📢 Step 3: return final response
-    // res.json({
-    //   success: true,
-    //   issues: enhanced
-    // });
+  //  Only after getting the issues call the gemini api to send the prompt with the issues
 
   } catch (error) {
     console.error("❌ Analysis Error:", error);
