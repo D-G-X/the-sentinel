@@ -1,4 +1,5 @@
-import { getLineNumber } from '../utils/helpers.js';
+// ✅ CORRECT
+import { getLineNumber } from '../utils/helpers.js'
 
 export function detectInsecureWebSocket(code, file) {
   const issues = [];
