@@ -34,7 +34,8 @@ export async function analyzeCode(req, res) {
     const result_sec = await securityService.analyzeSecurity(prFiles);
 
     // Parse result if it's a JSON string, otherwise treat as plain text
-    const result = result_arc + "\n" + result_sec;
+    const result =
+      result_arc + "\n\n ### Security and Vulnerability \n" + result_sec;
     let parsedResult = result;
     try {
       if (typeof result === "string" && result.trim().startsWith("{")) {
