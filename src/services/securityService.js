@@ -49,26 +49,42 @@ class SecurityService {
 
         ## Output Format (STRICT)
 
-        Use markdown:
+        Use markdown exactly as follows:
+
+        # 🏗️ Architecture & Security Review Report
+        **Final Verdict:** <one-sentence summary>
+
+        ## 📊 Executive Summary
+        - 🚨 Critical: <count>
+        - 🔴 High: <count>
+        - 🟠 Medium: <count>
+        - 🟡 Low: <count>
+        - Total: <count>
 
         ---
 
-        ### 🚨 Issue: <type>
+        ## 🚨 Critical Issues
+        1. **<Title>** ('<file path>')
+           - Problem: <description>
+           - Fix: <recommendation>
+        2. ...
 
-        **File:** <file>  
-        **Severity:** <severity>
+        ## 🔴 High Issues
+        1. **<Title>** ('<file path>')
+           - Problem: <description>
+           - Fix: <recommendation>
 
-        **What’s wrong:**  
-        <clear explanation>
+        ## 🟠 Medium Issues
+        1. ...
 
-        **Why it matters:**  
-        <real-world impact>
+        ## 🟡 Low Issues
+        1. ...
 
-        **Mitigation:**  
-        <precise fix with version OR code>
+        ## ⚠️ Pipeline Notice
+        - <pipeline scan details>
 
-        **Confidence:**  
-        This issue is verified using static analysis and vulnerability databases.
+        ## Suggested next step
+        - <concrete remediation step>
 
         ---
 
