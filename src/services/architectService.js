@@ -51,21 +51,17 @@ LOW: 1 point (e.g., Naming convention warnings, missing documentation)
 
 2. Scoring Formula:
 
-Raw Score: Sum of all violation weights.
-
-Normalized Score: (RawScore/20)×10.
-
-Final Score: Cap the result at a maximum of 10.0 and round to one decimal place.
+Final Score: Sum of all violation weights/20)×10. Cap the result at a maximum of 10.0 and round to one decimal place.
 
 3. Risk Assessment Mapping:
 
-Score ≥8: Critical Risk (Block Merge)
+Final Score ≥8: Critical Risk (Block Merge)
 
-Score ≥5: High Risk (Requires Senior Review)
+Final Score ≥5: High Risk (Requires Senior Review)
 
-Score ≥3: Moderate Risk (Warning)
+Final Score ≥3: Moderate Risk (Warning)
 
-Score <3: Low Risk (Clean)
+Final Score <3: Low Risk (Clean)
 
 give me descriptive answer for:
 - Drift Score and Assessment
