@@ -21,72 +21,63 @@ ${f.patch || "No changes"}
     const rules = JSON.stringify(architectRules, null, 2);
 
     const prompt = `
-    ### Role
-You are a Senior Software Architect and Security Auditor. Your goal is to strictly enforce the provided "Architecture Rules" and identify security vulnerabilities in Pull Request (PR) changes.
+You are a senior software architect
+Analyze the PR changes based on the architecture rules. I am sure this has some issues please find
 
-### 📋 Phase 1: Contextual Mapping (Internal Monologue)
-Before generating the report, perform these steps internally:
-1. Identify the 'Layer' of each file in the PR based on the 'path' defined in the Architecture Rules.
-2. Check for 'forbidden_imports' for that specific layer.
-3. Check for 'dependency_rules' violations.
-4. Scan for Security Risks: XSS (innerHTML), Insecure Protocols (ws://), Unsanitized Inputs, and Open Redirects.
+Focus on:
+- Architecture violations
+- Security issues (XSS, secrets, insecure protocol)
+- Risky patterns (eval, innerHTML, redirects)
 
-### 📊 Phase 2: Scoring Algorithm
-Calculate the Drift Score using this EXACT logic:
-1. **Weights:** CRITICAL: 4 | HIGH: 3 | MEDIUM: 2 | LOW: 1.
-2. **Formula:** Normalized Score = Min((Sum of Weights / 20) * 10, 10).
-3. **Risk Level:** 8+ (Critical), 5-7.9 (High), 3-4.9 (Moderate), <3 (Low).
-
-### 🛠️ Input Data
-**Architecture Rules:**
+Architecture Rules:
 ${rules}
 
-**PR Changes (Diffs):**
+PR Changes:
 ${formattedFiles}
 
-### 📝 Output Requirements (STRICT)
-- Do not provide conversational filler. 
-- You MUST find every violation present in the diff.
-- If a layer is 'frontend', and it imports a 'forbidden_import', it is AUTOMATICALLY a CRITICAL issue.
-- Use the Markdown format below exactly.
+Architectural Drift Calculation Logic
 
----
+After identifying violations, you must calculate a Drift Score (0 to 10) using the following weighted algorithm:
 
-# 🏗️ Architecture Report
-**Final Verdict:** [One sentence: e.g., "This PR introduces critical architectural drift and security vulnerabilities that must be resolved before merging."]
+1. Assign Severity Weights:
 
-## 📊 Executive Summary
-- **Drift Score:** [0.0 - 10.0]/10
-- **Risk Level:** [Label from Mapping]
-- 🚨 Critical: [Count]
-- 🔴 High: [Count]
-- 🟠 Medium: [Count]
-- 🟡 Low: [Count]
-- **Total Issues:** [Total Count]
+CRITICAL: 4 points (e.g., Layer violations, forbidden imports)
 
----
+HIGH: 3 points (e.g., Security risks, broken encapsulation)
 
-## 🚨 Critical Issues
-1. **[Violation Title]** ('[File Path]')
-   - **Problem:** [Describe why it violates the specific rule in architecture.json]
-   - **Fix:** [Specific code recommendation]
+MEDIUM: 2 points (e.g., Circular dependencies, missing guards)
 
-## 🔴 High Issues
-1. **[Security/Pattern Title]** ('[File Path]')
-   - **Problem:** [Describe the XSS, insecure protocol, or risky pattern]
-   - **Fix:** [Specific remediation step]
+LOW: 1 point (e.g., Naming convention warnings, missing documentation)
 
-## 🟠 Medium/🟡 Low Issues
-[Group remaining issues here with clear headings]
+2. Scoring Formula:
 
-## ⚠️ Pipeline Notice
-- Architecture Scan: [Success/Fail]
-- Rule Engine: v1.0.0
-- Automated Review by: Arch-Guard AI
+Raw Score: Sum of all violation weights.
 
-## Suggested next step
-- [One concrete action, e.g., "Refactor the Socket hook to remove direct DOM manipulation and move DB imports to the backend."]
-    `;
+Normalized Score: (RawScore/20)×10.
+
+Final Score: Cap the result at a maximum of 10.0 and round to one decimal place.
+
+3. Risk Assessment Mapping:
+
+Score ≥8: Critical Risk (Block Merge)
+
+Score ≥5: High Risk (Requires Senior Review)
+
+Score ≥3: Moderate Risk (Warning)
+
+Score <3: Low Risk (Clean)
+
+give me descriptive answer for:
+- Drift Score and Assessment
+- Issues Found
+  - [File: name]
+    - Issue:
+    - Severity:
+    - Fix:
+- Summary
+  - Total Issues:
+  - Critical Issues:
+`;
 
     const response = await promptGemini(prompt);
     return response;
