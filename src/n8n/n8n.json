@@ -11,10 +11,7 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [
-        -1312,
-        0
-      ],
+      "position": [-1312, 0],
       "id": "03604569-ae1a-4365-b7de-b7a2dbf87937",
       "name": "Webhook",
       "webhookId": "c8c23970-1a55-497b-b4fc-c35e50f99a69"
@@ -26,10 +23,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        -480,
-        0
-      ],
+      "position": [-480, 0],
       "id": "6fdbcc6e-4f17-4f40-b769-fd1a45934e42",
       "name": "Fetch Architecture.Json"
     },
@@ -40,10 +34,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        -912,
-        0
-      ],
+      "position": [-912, 0],
       "id": "a323f557-c3c1-4af5-a9fb-4576e0a25253",
       "name": "Fetch PR Changes"
     },
@@ -53,10 +44,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -704,
-        0
-      ],
+      "position": [-704, 0],
       "id": "1481e400-55b0-4785-adae-74dd4d5b3c79",
       "name": "PR Files"
     },
@@ -66,10 +54,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -272,
-        0
-      ],
+      "position": [-272, 0],
       "id": "7b4c86e8-6f5a-4b33-914e-71c6b5186297",
       "name": "Arch JSON"
     },
@@ -79,10 +64,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -48,
-        0
-      ],
+      "position": [-48, 0],
       "id": "d8d0c6d5-969a-43e7-9a50-d641b8f03fbc",
       "name": "FinalJsonBody"
     },
@@ -112,10 +94,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        512,
-        304
-      ],
+      "position": [512, 304],
       "id": "18d63600-4c6b-4bcd-bd75-edd4e07a09a9",
       "name": "Push Comment to GitHub"
     },
@@ -125,10 +104,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        -1120,
-        0
-      ],
+      "position": [-1120, 0],
       "id": "d7556182-e0d5-49c6-8fbc-cf1c798ef57b",
       "name": "FetchPRDetails"
     },
@@ -152,10 +128,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        -96,
-        304
-      ],
+      "position": [-96, 304],
       "id": "3464b008-346f-4bd2-87b8-545edad78047",
       "name": "BackEndResponse"
     },
@@ -165,10 +138,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        112,
-        304
-      ],
+      "position": [112, 304],
       "id": "2da54db5-115b-4b47-867a-b5360781c020",
       "name": "FormatBackendResponse1"
     }
@@ -242,9 +212,7 @@
       ]
     },
     "Push Comment to GitHub": {
-      "main": [
-        []
-      ]
+      "main": [[]]
     },
     "FetchPRDetails": {
       "main": [
